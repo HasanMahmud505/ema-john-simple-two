@@ -30,6 +30,7 @@ const Shop = () => {
     }, [products])
 
     const handleAddToCart = (product) => {
+        
         // cart.push(product); 
         // const newCart = [...cart, product];
         let newCart =  [];
