@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { addToDb, getShoppingCart } from '../../utilities/fakedb';
+import { addToDb, deleteShoppingCart, getShoppingCart } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShoppingCart, faRightLong } from '@fortawesome/free-solid-svg-icons'
 import './Shop.css';
+import { Link } from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
@@ -14,38 +17,43 @@ const Shop = () => {
             .then(data => setProducts(data))
     }, []);
 
-  
+
     useEffect(() => {
         const storedCart = getShoppingCart();
         const savedCart = [];
-        for(const id in storedCart){
+        for (const id in storedCart) {
             const addedProduct = products.find(product => product.id === id)
-            if(addedProduct){
-               const quantity = storedCart[id];
-               addedProduct.quantity = quantity;
-               savedCart.push(addedProduct)
+            if (addedProduct) {
+                const quantity = storedCart[id];
+                addedProduct.quantity = quantity;
+                savedCart.push(addedProduct)
             }
         }
         setCart(savedCart)
     }, [products])
 
     const handleAddToCart = (product) => {
-        
+
         // cart.push(product); 
         // const newCart = [...cart, product];
-        let newCart =  [];
+        let newCart = [];
         const exists = cart.find(pd => pd.id === product.id);
-        if(!exists){
+        if (!exists) {
             product.quantity = 1;
             newCart = [...cart, product]
         }
-        else{
+        else {
             exists.quantity = exists.quantity + 1;
             const remaining = cart.filter(pd => pd.id !== product.id);
             newCart = [...remaining, exists];
         }
         setCart(newCart);
         addToDb(product.id)
+    }
+
+    const handleClearCart = () => {
+        setCart([]);
+        deleteShoppingCart()
     }
 
     return (
@@ -60,7 +68,15 @@ const Shop = () => {
                 }
             </div>
             <div className='cart-container'>
-                <Cart cart={cart}></Cart>
+                <Cart cart={cart}
+                    handleClearCart={handleClearCart}
+                >
+                    <Link  className='proceed-link' to="/orders">
+                        <button className='btn-proceed'>Review Order
+                        <FontAwesomeIcon className='proceed-icon' icon={faRightLong} />
+                        </button>
+                    </Link>
+                </Cart>
             </div>
         </div>
     );
